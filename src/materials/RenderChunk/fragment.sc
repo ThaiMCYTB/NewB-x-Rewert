@@ -7,7 +7,28 @@ SAMPLER2D_AUTOREG(s_MatTexture);
 SAMPLER2D_AUTOREG(s_SeasonsTexture);
 SAMPLER2D_AUTOREG(s_LightMapTexture);
 
+// this code is from Newb X Paretion shader
+float getHeightFromTex(vec2 uv, sampler2D tex) {
+	vec3 t = texture2D(tex, uv).rgb;
+return (t.x+t.y+t.z)/3.0;
+}
+
+vec4 getNormalMapFromTex(vec2 uv, vec2 resolution, float scale, sampler2D tex) {
+  vec2 step = 1.0 / resolution;
+
+  float height = getHeightFromTex(uv, tex);
+
+  vec2 dxy = height - vec2(
+      getHeightFromTex(uv + vec2(step.x, 0.0), tex),
+      getHeightFromTex(uv + vec2(0.0, step.y), tex)
+  );
+  return vec4(normalize(vec3(dxy * scale / step, 1.0)), height);
+}
+
 void main() {
+// this code is from Newb X Paretion shader
+ vec3 nmTex = getNormalMapFromTex(v_texcoord0, vec2(15990.0,15990.0), 1.2, s_MatTexture).xyz;
+
   #if defined(DEPTH_ONLY_OPAQUE) || defined(DEPTH_ONLY) || defined(INSTANCING)
     gl_FragColor = vec4(1.0,1.0,1.0,1.0);
     return;
@@ -32,6 +53,13 @@ void main() {
 
   vec3 lightTint = texture2D(s_LightMapTexture, v_lightmapUV).rgb;
   lightTint = mix(lightTint.bbb, lightTint*lightTint, 0.35 + 0.65*v_lightmapUV.y*v_lightmapUV.y*v_lightmapUV.y);
+
+ float lightIntensity = max(dot(nmTex, normalize(vec3(1.0,1.0,0.5))), 0.0);   
+
+    vec3 col = diffuse.rgb;
+    diffuse.rgb += diffuse.rgb*lightIntensity;
+    diffuse.rgb *= 0.8;
+    diffuse.rgb = mix(col, diffuse.rgb, 1.0);
 
   color.rgb *= lightTint;
 
