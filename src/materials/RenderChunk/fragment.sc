@@ -27,7 +27,7 @@ vec4 getNormalMapFromTex(vec2 uv, vec2 resolution, float scale, sampler2D tex) {
 
 void main() {
 // this code is from Newb X Paretion shader
- vec3 nmTex = getNormalMapFromTex(v_texcoord0, vec2(60000.0,15990.0), 1.2, s_MatTexture).xyz;
+ vec3 nmTex = getNormalMapFromTex(v_texcoord0, vec2(60000.0,60000.0), 1.2, s_MatTexture).xyz;
 
   #if defined(DEPTH_ONLY_OPAQUE) || defined(DEPTH_ONLY) || defined(INSTANCING)
     gl_FragColor = vec4(1.0,1.0,1.0,1.0);
