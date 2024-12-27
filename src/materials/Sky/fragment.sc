@@ -14,7 +14,7 @@ float point2(vec2 pos) {
 }
 
 float voronoi(vec2 pos) {
-  return min(point(pos), point2(pos * mat2(-0.8, -0.5, 0.314, 0.8)));
+  return min(point2(pos), point2(pos * mat2(-0.8, -0.5, 0.314, 0.8)));
 }
 
 float amap(vec2 uv, float t) {
@@ -24,6 +24,9 @@ float amap(vec2 uv, float t) {
   //f *= 0.9 + 0.1*sin(40.0*uv.x+40.0*uv.y - t);
   return f;
 }
+Bạn đã gửi
+Ms hả
+
 vec3 aurora(vec3 vdir, float t) {
   vec2 uv = 0.2 * vdir.xz / vdir.y;
   vec3 c;
