@@ -8,13 +8,13 @@
   #include <newb/main.sh>
   uniform vec4 FogAndDistanceControl;
 #endif
-float point(vec2 pos) {
+float point2(vec2 pos) {
   pos = fract(pos) - 0.5;
   return 2.0*dot(pos, pos);
 }
 
 float voronoi(vec2 pos) {
-  return min(point(pos), point(pos * mat2(-0.8, -0.5, 0.314, 0.8)));
+  return min(point(pos), point2(pos * mat2(-0.8, -0.5, 0.314, 0.8)));
 }
 
 float amap(vec2 uv, float t) {
