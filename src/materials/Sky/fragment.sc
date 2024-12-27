@@ -8,6 +8,22 @@
   #include <newb/main.sh>
   uniform vec4 FogAndDistanceControl;
 #endif
+vec3 aurora(vec3 vdir, float t) {
+  vec2 uv = 0.2 * vdir.xz / vdir.y;
+  vec3 c;
+  const int s = 16;
+  const float si = 1.0 / float(s);
+  for (int i = 0; i < s; i++) {
+      float h = float(i)*si;
+      float f = amap(uv, t);
+      uv *= 1.05 + 0.03*sin(30.0*uv.x + t)*sin(30.0*uv.y - t)*sin(10.0*uv.x);
+      vec3 col = mix(vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0), h);
+      col = mix(col.xyz, col.zxy, 0.5 + 0.5*sin(uv.x-t));
+      c += col*f*si;
+  }
+  c *= smoothstep(0.0, 0.4, vdir.y);
+  return 3.0*c;
+}
 
 void main() {
   #ifndef INSTANCING
@@ -33,22 +49,8 @@ void main() {
     #ifdef NL_GALAXY_STARS
       skyColor += NL_GALAXY_STARS*nlRenderGalaxy(viewDir, v_fogColor, env, v_underwaterRainTime.z);
     #endif
-vec3 aurora(vec3 vdir, float t) {
-  vec2 uv = 0.2 * vdir.xz / vdir.y;
-  vec3 c;
-  const int s = 16;
-  const float si = 1.0 / float(s);
-  for (int i = 0; i < s; i++) {
-      float h = float(i)*si;
-      float f = amap(uv, t);
-      uv *= 1.05 + 0.03*sin(30.0*uv.x + t)*sin(30.0*uv.y - t)*sin(10.0*uv.x);
-      vec3 col = mix(vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0), h);
-      col = mix(col.xyz, col.zxy, 0.5 + 0.5*sin(uv.x-t));
-      c += col*f*si;
-  }
-  c *= smoothstep(0.0, 0.4, vdir.y);
-  return 3.0*c;
-}
+skyColor += aurora(viewDir, v_underwaterRainTime.z);
+
 
     skyColor = colorCorrection(skyColor);
 
