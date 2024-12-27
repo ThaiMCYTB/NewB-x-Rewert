@@ -8,6 +8,22 @@
   #include <newb/main.sh>
   uniform vec4 FogAndDistanceControl;
 #endif
+float point(vec2 pos) {
+  pos = fract(pos) - 0.5;
+  return 2.0*dot(pos, pos);
+}
+
+float voronoi(vec2 pos) {
+  return min(point(pos), point(pos * mat2(-0.8, -0.5, 0.314, 0.8)));
+}
+
+float amap(vec2 uv, float t) {
+  uv += 0.01*sin(40.0*uv.xy);
+  float f = voronoi(uv+0.03*t)*(0.5+0.5*voronoi(0.5*uv + 0.08*t));
+  f = smoothstep(0.05, 0.8, f);
+  //f *= 0.9 + 0.1*sin(40.0*uv.x+40.0*uv.y - t);
+  return f;
+}
 vec3 aurora(vec3 vdir, float t) {
   vec2 uv = 0.2 * vdir.xz / vdir.y;
   vec3 c;
