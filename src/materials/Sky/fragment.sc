@@ -8,19 +8,58 @@
   #include <newb/main.sh>
   uniform vec4 FogAndDistanceControl;
 #endif
-float auroMap(vec3 p, float t) {
-  t *= 0.2;
-  p.xz *= 0.1;
-  p = floor(p);
+Here is a modified version of ranzies code. It will look completely different though because I changed most of the logic.
+```glsl
 
-  float d0 = cos(p.x*0.1 + t + sin(p.z*0.2));
-  float d1 = sin(p.z*0.1 - t + cos(p.x*0.2));
-  float d2 = cos(p.z*0.1 + 1.0*sin(d0 + d1*2.0) + d1*2.0 + d0);
-  d0 *= d0; d1 *= d1; d2 *= d2;
-  d2 = d0/(1.0 + d2/0.07);
-
-  return smoothstep(0.0, 2.0, d2);
+float point(vec2 pos) {
+  pos = fract(pos) - 0.5;
+  return 2.0*dot(pos, pos);
 }
+
+float voronoi(vec2 pos) {
+  return min(point(pos), point(pos * mat2(-0.8, -0.5, 0.314, 0.8)));
+}
+
+float amap(vec2 uv, float t) {
+  uv += 0.01*sin(40.0*uv.xy);
+  float f = voronoi(uv+0.03*t)*(0.5+0.5*voronoi(0.5*uv + 0.08*t));
+  f = smoothstep(0.05, 0.8, f);
+  //f *= 0.9 + 0.1*sin(40.0*uv.x+40.0*uv.y - t);
+  return f;
+}
+
+vec3 aurora(vec3 vdir, float t) {
+  vec2 uv = 0.2 * vdir.xz / vdir.y;
+  vec3 c;
+  const int s = 8;
+  const float si = 1.0 / float(s);
+  for (int i = 0; i < s; i++) {
+      float h = float(i)*si;
+      float f = amap(uv, t);
+      uv *= 1.1 + 0.04*sin(18.0*uv.x + t)*sin(18.0*uv.y - t);
+      vec3 col = mix(vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0), h);
+      col = mix(col.xyz, col.zxy, 0.5 + 0.5*sin(uv.x-t));
+      c += col*f*si;
+  }
+  c *= smoothstep(0.0, 0.4, vdir.y);
+  return 3.0*c;
+}
+
+vec3 renderWorld(vec3 vdir, vec3 wpos, float t) {
+    // example world
+    float g = abs(vdir.y);
+    vec3 s = mix(vec3(0.05,0.05,0.1),vec3(0.0,0.0,0.0),g*g);
+    if (wpos.y>0.0) { // clouds layer
+        vec2 u = 4.0*wpos.xz - 0.1*t;
+        vec3 a = aurora(vdir, t);
+        s += a;
+    } else { // ground layer
+        s = mix(vec3(0.0,0.05,0.08),s,pow(1.0-g,16.0));
+        s -= 0.5*s*g*float(min(fract(wpos.x),fract(wpos.z))<0.02);
+    }
+    return s;
+}
+```
 
 vec3 aurora(vec3 vdir, float t) {
   vec2 uv = 0.2 * vdir.xz / vdir.y;
