@@ -24,8 +24,6 @@ float amap(vec2 uv, float t) {
   //f *= 0.9 + 0.1*sin(40.0*uv.x+40.0*uv.y - t);
   return f;
 }
-Bạn đã gửi
-Ms hả
 
 vec3 aurora(vec3 vdir, float t) {
   vec2 uv = 0.2 * vdir.xz / vdir.y;
