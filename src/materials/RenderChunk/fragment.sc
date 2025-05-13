@@ -14,6 +14,7 @@ void main() {
   #endif
 
   vec4 diffuse = texture2D(s_MatTexture, v_texcoord0);
+  diffuse.rgb += 0.5*texture2D(s_MatTexture, v_texcoord0 + vec2(0.002,0.002)).rgb;
   vec4 color = v_color0;
 
   #ifdef ALPHA_TEST
