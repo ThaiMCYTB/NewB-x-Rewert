@@ -33,7 +33,15 @@ void main() {
   lightTint = mix(lightTint.bbb, lightTint*lightTint, 0.35 + 0.65*v_lightmapUV.y*v_lightmapUV.y*v_lightmapUV.y);
 
   color.rgb *= lightTint;
+ // this code is from Newb X Paretion shader
+ vec3 nmTex = getNormalMapFromTex(v_texcoord0, vec2(15990.0,15990.0), 1.2, s_MatTexture).xyz;
+    
+    float lightIntensity = max(dot(nmTex, normalize(vec3(1.0,1.0,0.5))), 0.0);   
 
+    vec3 col = diffuse.rgb;
+    diffuse.rgb += diffuse.rgb*lightIntensity;
+    diffuse.rgb *= 0.8;
+    diffuse.rgb = mix(col, diffuse.rgb, 1.0);
   #if defined(TRANSPARENT) && !(defined(SEASONS) || defined(RENDER_AS_BILLBOARDS))
     if (v_extra.b > 0.9) {
       diffuse.rgb = vec3_splat(1.0 - NL_WATER_TEX_OPACITY*(1.0 - diffuse.b*1.8));
